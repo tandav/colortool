@@ -1,0 +1,6 @@
+isort==5.10.1
+autopep8==1.6.0
+autoflake==1.4
+pytest==7.0.1
+unify==0.5
+mypy==0.940
