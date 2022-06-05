@@ -75,6 +75,24 @@ def hls_to_css_hex(h, l, s) -> str:
     return f'#{r:02X}{g:02X}{b:02X}'
 
 
+def font_color(color: str, threshold: float = 0.5) -> str:
+    rgb = to_rgb_float(to_rgb_int(color))
+    h, l, s = colorsys.rgb_to_hls(*rgb)
+    return '#FFFFFF' if l < threshold else '#000000'
+
+
+def lighter(color: str, ratio: float = 0.5) -> str:
+    rgb = to_rgb_float(to_rgb_int(color))
+    h, l, s = colorsys.rgb_to_hls(*rgb)
+    return hls_to_css_hex(h, l + (1 - l) * ratio, s)
+
+
+def darker(color: str, ratio: float = 0.5) -> str:
+    rgb = to_rgb_float(to_rgb_int(color))
+    h, l, s = colorsys.rgb_to_hls(*rgb)
+    return hls_to_css_hex(h, l * ratio, s)
+
+
 def font_border_colors(
     color: str,
     font_threshold: float = 0.5,
@@ -91,6 +109,5 @@ def font_border_colors(
     """
     rgb = to_rgb_float(to_rgb_int(color))
     h, l, s = colorsys.rgb_to_hls(*rgb)
-    font_color = '#ffffff' if l < font_threshold else '#000000'
     border_color = color if l < border_threshold else hls_to_css_hex(h, l * 0.7, s)
-    return font_color, border_color
+    return font_color(color), border_color
