@@ -1,5 +1,6 @@
 import colorsys
 import random
+import string
 
 RGBInt = tuple[int, int, int]
 RGBFloat = tuple[float, float, float]
@@ -45,6 +46,10 @@ def random_rgb():
 
 def random_rgba():
     return random.randrange(255), random.randrange(255), random.randrange(255), 255
+
+
+def random_hex():
+    return f"#{int.from_bytes(random.randbytes(3), 'little'):06x}"
 
 
 def css_hex(color: int) -> str:
@@ -111,3 +116,7 @@ def font_border_colors(
     h, l, s = colorsys.rgb_to_hls(*rgb)
     border_color = color if l < border_threshold else hls_to_css_hex(h, l * 0.7, s)
     return font_color(color), border_color
+
+
+def is_hex_color(v: str) -> bool:
+    return v.startswith('#') and set(v[1:]) <= set(string.hexdigits)

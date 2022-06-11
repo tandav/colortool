@@ -52,3 +52,7 @@ def test_lighter(color, ratio, expected):
 ])
 def test_darker(color, ratio, expected):
     assert colortool.darker(color, ratio) == expected
+
+
+def test_random_hex():
+    assert colortool.is_hex_color(colortool.random_hex())
