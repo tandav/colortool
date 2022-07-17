@@ -26,3 +26,7 @@ test:
 
 .PHONY: check
 check: check-lint mypy test
+
+.PHONY: bump2version
+bump2version:
+	bump2version $(STEP)
