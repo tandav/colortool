@@ -1,6 +1,8 @@
-isort==5.10.1
-autopep8==1.6.0
 autoflake==1.4
-pytest==7.0.1
-unify==0.5
+autopep8==1.6.0
+bump2version==1.0.1
+flake8==4.0.1
+isort==5.10.1
 mypy==0.940
+pre-commit==2.19.0
+pytest==7.0.1
