@@ -9,7 +9,7 @@ RGBFloat = tuple[float, float, float]
 HexColor = int
 
 
-def minmax_scaler(value, oldmin, oldmax, newmin=0.0, newmax=1.0) -> float:
+def minmax_scaler(value: float, oldmin: float, oldmax: float, newmin: float = 0.0, newmax: float = 1.0) -> float:
     '''
     >>> minmax_scaler(50, 0, 100, 0.0, 1.0)
     0.5
@@ -74,7 +74,7 @@ def to_rgb_float(color: RGBInt) -> RGBFloat:
     )
 
 
-def hls_to_css_hex(h, l, s) -> str:
+def hls_to_css_hex(h: float, l: float, s: float) -> str:
     r, g, b = colorsys.hls_to_rgb(h, l, s)
     r = int(minmax_scaler(r, 0, 1, 0, 255))
     g = int(minmax_scaler(g, 0, 1, 0, 255))
