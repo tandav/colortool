@@ -122,3 +122,13 @@ def font_border_colors(
 
 def is_hex_color(v: str) -> bool:
     return v.startswith('#') and set(v[1:]) <= set(string.hexdigits)
+
+
+class colors:
+    WHITE_BRIGHT = 0xFFFFFF
+    BLACK_BRIGHT = 0x000000
+    RED_PALE = 0xe2c5c5
+    GREEN_PALE = 0x8ccc96
+    MAGENTA = 0x4457e5
+    BLUE = 0x4f88ea
+    YELLOW = 0xe2ed1a
