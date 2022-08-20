@@ -127,8 +127,12 @@ def is_hex_color(v: str) -> bool:
 class colors:
     WHITE_BRIGHT = 0xFFFFFF
     BLACK_BRIGHT = 0x000000
+    MAGENTA = 0x4457e5
+    RED = 0xFF0000
+    GREEN = 0x00FF00
+    BLUE = 0x4f88ea
     RED_PALE = 0xe2c5c5
     GREEN_PALE = 0x8ccc96
-    MAGENTA = 0x4457e5
-    BLUE = 0x4f88ea
+    WHITE_PALE = 0xAAAAAA
+    BLACK_PALE = 0x505050
     YELLOW = 0xe2ed1a
