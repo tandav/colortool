@@ -22,6 +22,10 @@ def test_hex_rgb(hex_, rgb):
         (0x0000FF, '#0000FF'),
         (0x0000FE, '#0000FE'),
         (0xFF0000, '#FF0000'),
+        # rgba works as well
+        (0xFF000000, '#FF000000'),
+        (0xFF0000FF, '#FF0000FF'),
+        (0xFF0000AB, '#FF0000AB'),
     ],
 )
 def test_css_hex(color, expected):
