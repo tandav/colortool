@@ -5,7 +5,7 @@ import functools
 import random
 import string
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 Float3 = tuple[float, float, float]
 Float4 = tuple[float, float, float, float]
