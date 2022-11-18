@@ -1,73 +1,85 @@
+import itertools
+
 import pytest
 
-import colortool
+from colortool import Color
+from colortool import colors
+
+
+@pytest.mark.parametrize('color', (-1, 0xFFFFFF + 1))
+def test_range_validation(color):
+    with pytest.raises(ValueError):
+        Color(color)
+
+
+def test_rgb_float_range_validation():
+    with pytest.raises(ValueError):
+        Color.from_rgb_float((1.1, 0, 0))
 
 
 @pytest.mark.parametrize(
-    'hex_, rgb', [
-        (0x000000, (0, 0, 0)),
-        (0xFFFFFF, (255, 255, 255)),
-        (0x8FED6C, (143, 237, 108)),
-    ],
+    'hex, css_hex, rgb_int, rgb_float, hls', (
+        (0x000000, '#000000', (0, 0, 0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.0)),
+        (0x0FACED, '#0FACED', (15, 172, 237), (0.058823529411764705, 0.6745098039215687, 0.9294117647058824), (0.5487987987987988, 0.49411764705882355, 0.8809523809523809)),
+        (0xBADA55, '#BADA55', (186, 218, 85), (0.7294117647058823, 0.8549019607843137, 0.3333333333333333), (0.20676691729323307, 0.5941176470588235, 0.6425120772946858)),
+    ),
 )
-def test_hex_rgb(hex_, rgb):
-    assert colortool.hex_to_rgb(hex_) == rgb
-    assert colortool.rgb_to_hex(rgb) == hex_
+def test_conversions(hex, css_hex, rgb_int, rgb_float, hls):
+    keys = 'hex', 'css_hex', 'rgb_int', 'rgb_float', 'hls'
+    kv = zip(keys, (hex, css_hex, rgb_int, rgb_float, hls))
+
+    for (from_k, from_v), (to_k, to_v) in itertools.permutations(kv, 2):
+        if from_k == 'hls':
+            continue  # too hard to compare
+        print(from_k, '->', to_k, from_v, '->', to_v)
+        color = getattr(Color, f'from_{from_k}')(from_v)
+        assert getattr(color, to_k) == to_v, f'{from_k} -> {to_k}'
+
+
+@pytest.mark.parametrize(
+    'background, color, color_alpha, expected', (
+        (0x9AEA8A, 0x9A008A, 0.45, 0x9A808A),
+        (0x0B38FF, 0xFFFF0E, 0.4, 0x6C879E),
+    ),
+)
+def test_from_background_and_color_alpha(background, color, color_alpha, expected):
+    assert Color.from_background_and_color_alpha(
+        Color.from_hex(background),
+        Color.from_hex(color),
+        color_alpha,
+    ) == Color.from_hex(expected)
 
 
 @pytest.mark.parametrize(
     'color, expected', [
-        (0x7CCB11, '#7CCB11'),
-        (0x000000, '#000000'),
-        (0x0000FF, '#0000FF'),
-        (0x0000FE, '#0000FE'),
-        (0xFF0000, '#FF0000'),
-        # rgba works as well
-        (0xFF000000, '#FF000000'),
-        (0xFF0000FF, '#FF0000FF'),
-        (0xFF0000AB, '#FF0000AB'),
-    ],
-)
-def test_css_hex(color, expected):
-    assert colortool.css_hex(color) == expected
-
-
-WHITE = '#FFFFFF'
-BLACK = '#000000'
-TEST_COLOR = '#FA972E'
-
-
-@pytest.mark.parametrize(
-    'color, expected', [
-        ('#FA972E', BLACK),
-        ('#FDE1C3', BLACK),
-        ('#673603', WHITE),
-        ('#904C04', WHITE),
+        (Color.from_hex(0xFA972E), colors.BLACK_BRIGHT),
+        (Color.from_hex(0xFDE1C3), colors.BLACK_BRIGHT),
+        (Color.from_hex(0x673603), colors.WHITE_BRIGHT),
+        (Color.from_hex(0x904C04), colors.WHITE_BRIGHT),
     ],
 )
 def test_font_color(color, expected):
-    assert colortool.font_color(color) == expected
+    assert color.font_color() == expected
+
+
+TEST_COLOR = Color.from_hex(0xFA972E)
 
 
 @pytest.mark.parametrize(
     'color, ratio, expected', [
-        (TEST_COLOR, 1, WHITE),
-        (TEST_COLOR, 0.5, '#FCCB96'),
+        (TEST_COLOR, 1, colors.WHITE_BRIGHT),
+        (TEST_COLOR, 0.5, Color.from_hex(0xFCCB96)),
     ],
 )
 def test_lighter(color, ratio, expected):
-    assert colortool.lighter(color, ratio) == expected
+    assert color.lighter(ratio) == expected
 
 
 @pytest.mark.parametrize(
     'color, ratio, expected', [
-        (TEST_COLOR, 0, BLACK),
-        (TEST_COLOR, 0.5, '#904C03'),
+        (TEST_COLOR, 0, colors.BLACK_BRIGHT),
+        (TEST_COLOR, 0.5, Color.from_hex(0x904C03)),
     ],
 )
 def test_darker(color, ratio, expected):
-    assert colortool.darker(color, ratio) == expected
-
-
-def test_random_hex():
-    assert colortool.is_hex_color(colortool.random_hex())
+    assert color.darker(ratio) == expected
