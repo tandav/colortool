@@ -12,15 +12,14 @@ Float4 = tuple[float, float, float, float]
 Int3 = tuple[int, int, int]
 
 
-def is_str_hex_color(v: str) -> bool:
-    return v.startswith('#') and set(v[1:]) <= set(string.hexdigits)
+def is_css_hex_color(v: str) -> bool:
+    return len(v) == 7 and v.startswith('#') and set(v[1:]) <= set(string.hexdigits)
 
 
 class Color:
     """
     supported formats:
     hex, css_hex, rgb_int, rgb_float, hls
-    todo: rename hls to hsl
     """
 
     def __init__(self, color: int):
@@ -59,10 +58,11 @@ class Color:
         return cls.from_rgb_int((int(color[0] * 255), int(color[1] * 255), int(color[2] * 255)))
 
     @classmethod
-    def from_hls(cls, color: Float3) -> Color:
-        if not all(0 <= c <= 1 for c in color):
+    def from_hsl(cls, hsl: Float3) -> Color:
+        if not all(0 <= c <= 1 for c in hsl):
             raise ValueError('color must be in range [0, 1]')
-        r, g, b = colorsys.hls_to_rgb(*color)
+        h, s, l = hsl
+        r, g, b = colorsys.hls_to_rgb(h, l, s)
         return cls.from_rgb_float((r, g, b))
 
     @classmethod
@@ -106,16 +106,17 @@ class Color:
         return r / 255, g / 255, b / 255
 
     @functools.cached_property
-    def hls(self) -> Float3:
-        return colorsys.rgb_to_hls(*self.rgb_float)
+    def hsl(self) -> Float3:
+        h, l, s = colorsys.rgb_to_hls(*self.rgb_float)
+        return h, s, l
 
     def lighter(self, ratio: float = 0.5) -> Color:
-        h, l, s = self.hls
-        return Color.from_hls((h, l + (1 - l) * ratio, s))
+        h, s, l = self.hsl
+        return Color.from_hsl((h, s, l + (1 - l) * ratio))
 
     def darker(self, ratio: float = 0.5) -> Color:
-        h, l, s = self.hls
-        return Color.from_hls((h, l * ratio, s))
+        h, s, l = self.hsl
+        return Color.from_hsl((h, s, l * ratio))
 
     def font_color(self, threshold: float = 0.5) -> Color:
         """
@@ -125,8 +126,8 @@ class Color:
         :param threshold: 0..1 float. lightness value below the threshold will result in white, any above will result in black
         :return: font_color in css hex string format
         """
-        h, l, s = self.hls
-        return colors.WHITE_BRIGHT if l < threshold else colors.BLACK_BRIGHT
+        h, s, l = self.hsl
+        return WHITE_BRIGHT if l < threshold else BLACK_BRIGHT
 
     def font_border_colors(
         self,
@@ -144,20 +145,19 @@ class Color:
         """
         # rgb = to_rgb_float(to_rgb_int(color))
         # h, l, s = colorsys.rgb_to_hls(*rgb)
-        h, l, s = self.hls
-        border_color = self if l < border_threshold else Color.from_hls((h, l * 0.7, s))
+        h, s, l = self.hsl
+        border_color = self if l < border_threshold else Color.from_hsl((h, s, l * 0.7))
         return self.font_color(font_threshold), border_color
 
 
-class colors:
-    WHITE_BRIGHT = Color.from_hex(0xFFFFFF)
-    BLACK_BRIGHT = Color.from_hex(0x000000)
-    MAGENTA = Color.from_hex(0x4457e5)
-    RED = Color.from_hex(0xFF0000)
-    GREEN = Color.from_hex(0x00FF00)
-    BLUE = Color.from_hex(0x4f88ea)
-    RED_PALE = Color.from_hex(0xe2c5c5)
-    GREEN_PALE = Color.from_hex(0x8ccc96)
-    WHITE_PALE = Color.from_hex(0xAAAAAA)
-    BLACK_PALE = Color.from_hex(0x505050)
-    YELLOW = Color.from_hex(0xE2ED1A)
+WHITE_BRIGHT = Color.from_hex(0xFFFFFF)
+BLACK_BRIGHT = Color.from_hex(0x000000)
+MAGENTA = Color.from_hex(0x4457e5)
+RED = Color.from_hex(0xFF0000)
+GREEN = Color.from_hex(0x00FF00)
+BLUE = Color.from_hex(0x4f88ea)
+RED_PALE = Color.from_hex(0xe2c5c5)
+GREEN_PALE = Color.from_hex(0x8ccc96)
+WHITE_PALE = Color.from_hex(0xAAAAAA)
+BLACK_PALE = Color.from_hex(0x505050)
+YELLOW = Color.from_hex(0xE2ED1A)

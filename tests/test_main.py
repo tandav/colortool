@@ -2,8 +2,8 @@ import itertools
 
 import pytest
 
+import colortool
 from colortool import Color
-from colortool import colors
 
 
 @pytest.mark.parametrize('color', (-1, 0xFFFFFF + 1))
@@ -18,18 +18,18 @@ def test_rgb_float_range_validation():
 
 
 @pytest.mark.parametrize(
-    'hex, css_hex, rgb_int, rgb_float, hls', (
+    'hex, css_hex, rgb_int, rgb_float, hsl', (
         (0x000000, '#000000', (0, 0, 0), (0.0, 0.0, 0.0), (0.0, 0.0, 0.0)),
-        (0x0FACED, '#0FACED', (15, 172, 237), (0.058823529411764705, 0.6745098039215687, 0.9294117647058824), (0.5487987987987988, 0.49411764705882355, 0.8809523809523809)),
-        (0xBADA55, '#BADA55', (186, 218, 85), (0.7294117647058823, 0.8549019607843137, 0.3333333333333333), (0.20676691729323307, 0.5941176470588235, 0.6425120772946858)),
+        (0x0FACED, '#0FACED', (15, 172, 237), (0.058823529411764705, 0.6745098039215687, 0.9294117647058824), (0.5487987987987988, 0.8809523809523809, 0.49411764705882355)),
+        (0xBADA55, '#BADA55', (186, 218, 85), (0.7294117647058823, 0.8549019607843137, 0.3333333333333333), (0.20676691729323307, 0.6425120772946858, 0.5941176470588235)),
     ),
 )
-def test_conversions(hex, css_hex, rgb_int, rgb_float, hls):
-    keys = 'hex', 'css_hex', 'rgb_int', 'rgb_float', 'hls'
-    kv = zip(keys, (hex, css_hex, rgb_int, rgb_float, hls))
+def test_conversions(hex, css_hex, rgb_int, rgb_float, hsl):
+    keys = 'hex', 'css_hex', 'rgb_int', 'rgb_float', 'hsl'
+    kv = zip(keys, (hex, css_hex, rgb_int, rgb_float, hsl))
 
     for (from_k, from_v), (to_k, to_v) in itertools.permutations(kv, 2):
-        if from_k == 'hls':
+        if from_k == 'hsl':
             continue  # too hard to compare
         print(from_k, '->', to_k, from_v, '->', to_v)
         color = getattr(Color, f'from_{from_k}')(from_v)
@@ -52,10 +52,10 @@ def test_from_background_and_color_alpha(background, color, color_alpha, expecte
 
 @pytest.mark.parametrize(
     'color, expected', [
-        (Color.from_hex(0xFA972E), colors.BLACK_BRIGHT),
-        (Color.from_hex(0xFDE1C3), colors.BLACK_BRIGHT),
-        (Color.from_hex(0x673603), colors.WHITE_BRIGHT),
-        (Color.from_hex(0x904C04), colors.WHITE_BRIGHT),
+        (Color.from_hex(0xFA972E), colortool.BLACK_BRIGHT),
+        (Color.from_hex(0xFDE1C3), colortool.BLACK_BRIGHT),
+        (Color.from_hex(0x673603), colortool.WHITE_BRIGHT),
+        (Color.from_hex(0x904C04), colortool.WHITE_BRIGHT),
     ],
 )
 def test_font_color(color, expected):
@@ -67,7 +67,7 @@ TEST_COLOR = Color.from_hex(0xFA972E)
 
 @pytest.mark.parametrize(
     'color, ratio, expected', [
-        (TEST_COLOR, 1, colors.WHITE_BRIGHT),
+        (TEST_COLOR, 1, colortool.WHITE_BRIGHT),
         (TEST_COLOR, 0.5, Color.from_hex(0xFCCB96)),
     ],
 )
@@ -77,9 +77,22 @@ def test_lighter(color, ratio, expected):
 
 @pytest.mark.parametrize(
     'color, ratio, expected', [
-        (TEST_COLOR, 0, colors.BLACK_BRIGHT),
+        (TEST_COLOR, 0, colortool.BLACK_BRIGHT),
         (TEST_COLOR, 0.5, Color.from_hex(0x904C03)),
     ],
 )
 def test_darker(color, ratio, expected):
     assert color.darker(ratio) == expected
+
+
+@pytest.mark.parametrize(
+    'string, expected', (
+        ('#FACADE', True),
+        ('#000000', True),
+        ('#00000', False),
+        ('FACADEC', False),
+        ('#RACADE', False),
+    ),
+)
+def test_is_css_hex_color(string, expected):
+    assert colortool.is_css_hex_color(string) == expected
