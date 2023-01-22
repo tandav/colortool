@@ -31,11 +31,17 @@ Color(0x00FF00)
 >>> Color.from_hsl((0.3333333333333333, 1.0, 0.5))
 Color(0x00FF00)
 
+# rgba colors
+>>> Color.from_rgba_int_float((0, 255, 0, 0.5))
+Color(0x00FF00, alpha=0.5)
+
+>>> Color.from_rgba_int_float((0, 255, 0, 0.5)).css_rgba
+'rgba(0, 255, 0, 0.5)'
+
 # convert RGBA color on RGB background to RGB color
 >>> Color.from_background_and_color_alpha(
         background=Color.from_hex(0x00FF00),
-        color=Color.from_hex(0x000000),
-        color_alpha=0.5,
+        color=Color(0x000000, alpha=0.5),
     )
 Color(0x007F00)
 

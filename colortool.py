@@ -10,6 +10,8 @@ __version__ = '0.2.0'
 Float3 = tuple[float, float, float]
 Float4 = tuple[float, float, float, float]
 Int3 = tuple[int, int, int]
+Int4 = tuple[int, int, int, int]
+Int3Float = tuple[int, int, int, float]
 
 
 def is_css_hex_color(v: str) -> bool:
@@ -22,18 +24,26 @@ class Color:
     hex, css_hex, rgb_int, rgb_float, hls
     """
 
-    def __init__(self, color: int):
+    def __init__(self, color: int, alpha: float | None = None):
         if not (0 <= color <= 0xFFFFFF):
             raise ValueError('color must be in range [0, 0xFFFFFF]')
+        if alpha is not None and not (0 <= alpha <= 1):
+            raise ValueError('alpha must be in range [0, 1]')
         self.color = color
+        self.alpha = alpha
 
     def __repr__(self) -> str:
-        return f'Color(0x{self.color:06X})'
+        if self.alpha is None:
+            return f'Color(0x{self.color:06X})'
+        return f'Color(0x{self.color:06X}, alpha={self.alpha})'
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Color):
             return NotImplemented
-        return self.color == other.color
+        return (self.color, self.alpha) == (other.color, other.alpha)
+
+    def __hash__(self) -> int:
+        return hash((self.color, self.alpha))
 
     @classmethod
     def random(cls) -> Color:
@@ -48,8 +58,30 @@ class Color:
         return cls(int(color[1:], base=16))
 
     @classmethod
+    def from_css_rgb(cls, color: str) -> Color:
+        r, g, b = color[4:-1].split(',')
+        return cls.from_rgb_int((int(r), int(g), int(b)))
+
+    @classmethod
+    def from_css_rgba(cls, color: str) -> Color:
+        x = color[5:-1].split(',')
+        return cls.from_rgba_int_float((int(x[0]), int(x[1]), int(x[2]), float(x[3])))
+
+    @classmethod
     def from_rgb_int(cls, color: Int3) -> Color:
         return cls(int.from_bytes(bytes(color), byteorder='big'))
+
+    @classmethod
+    def from_rgba_int_float(cls, color: Int3Float) -> Color:
+        return cls(int.from_bytes(bytes(color[:3]), byteorder='big'), color[3])
+
+    @classmethod
+    def from_rgba_int(cls, color: Int4) -> Color:
+        return cls(int.from_bytes(bytes(color[:3]), byteorder='big'), color[3] / 255)
+
+    @classmethod
+    def from_rgba_float(cls, color: Float4) -> Color:
+        return cls.from_rgba_int_float((int(color[0] * 255), int(color[1] * 255), int(color[2] * 255), color[3]))
 
     @classmethod
     def from_rgb_float(cls, color: Float3) -> Color:
@@ -70,21 +102,23 @@ class Color:
         cls,
         background: Color,
         color: Color,
-        color_alpha: float,
     ) -> Color:
         """https://stackoverflow.com/a/21576659/4204843
         RGBA color on RGB background
         """
-        if not (0 <= color_alpha <= 1):
-            raise ValueError('color_alpha must be in range [0, 1]')
+        if color.alpha is None:
+            raise ValueError('color.alpha must not be None')
+
+        if background.alpha is not None:
+            raise ValueError('background color must not have alpha')
 
         br, bg, bb = background.rgb_float
         r, g, b = color.rgb_float
 
         return cls.from_rgb_float((
-            (1 - color_alpha) * br + color_alpha * r,
-            (1 - color_alpha) * bg + color_alpha * g,
-            (1 - color_alpha) * bb + color_alpha * b,
+            (1 - color.alpha) * br + color.alpha * r,
+            (1 - color.alpha) * bg + color.alpha * g,
+            (1 - color.alpha) * bb + color.alpha * b,
         ))
 
     @functools.cached_property
@@ -101,9 +135,40 @@ class Color:
         return r, g, b
 
     @functools.cached_property
+    def rgba_int(self) -> Int4:
+        if self.alpha is None:
+            raise ValueError('alpha is None')
+        r, g, b = self.color.to_bytes(3, byteorder='big')
+        return r, g, b, int(self.alpha * 255)
+
+    @functools.cached_property
     def rgb_float(self) -> Float3:
         r, g, b = self.rgb_int
         return r / 255, g / 255, b / 255
+
+    @functools.cached_property
+    def rgba_float(self) -> Float4:
+        if self.alpha is None:
+            raise ValueError('alpha is None')
+        r, g, b = self.rgb_int
+        return r / 255, g / 255, b / 255, self.alpha
+
+    @functools.cached_property
+    def rgba_int_float(self) -> Int3Float:
+        if self.alpha is None:
+            raise ValueError('alpha is None')
+        r, g, b = self.rgb_int
+        return r, g, b, self.alpha
+
+    @functools.cached_property
+    def css_rgb(self) -> str:
+        return f'rgb{self.rgb_int}'
+
+    @functools.cached_property
+    def css_rgba(self) -> str:
+        if self.alpha is None:
+            raise ValueError('alpha is None')
+        return f'rgba{self.rgba_int_float}'
 
     @functools.cached_property
     def hsl(self) -> Float3:
