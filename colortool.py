@@ -2,16 +2,20 @@ from __future__ import annotations
 
 import colorsys
 import functools
+import math
 import random
 import string
+import typing as tp
+
+from dsplib.scale import minmax_scaler
 
 __version__ = '0.3.0'
 
-Float3 = tuple[float, float, float]
-Float4 = tuple[float, float, float, float]
-Int3 = tuple[int, int, int]
-Int4 = tuple[int, int, int, int]
-Int3Float = tuple[int, int, int, float]
+Float3 = tp.Tuple[float, float, float]
+Float4 = tp.Tuple[float, float, float, float]
+Int3 = tp.Tuple[int, int, int]
+Int4 = tp.Tuple[int, int, int, int]
+Int3Float = tp.Tuple[int, int, int, float]
 
 
 def is_css_hex_color(v: str) -> bool:
@@ -25,9 +29,9 @@ class Color:
     """
 
     def __init__(self, color: int, alpha: float | None = None):
-        if not (0 <= color <= 0xFFFFFF):
+        if not 0 <= color <= 0xFFFFFF:
             raise ValueError('color must be in range [0, 0xFFFFFF]')
-        if alpha is not None and not (0 <= alpha <= 1):
+        if alpha is not None and not 0 <= alpha <= 1:
             raise ValueError('alpha must be in range [0, 1]')
         self.color = color
         self.alpha = alpha
@@ -173,7 +177,7 @@ class Color:
     @functools.cached_property
     def hsl(self) -> Float3:
         h, l, s = colorsys.rgb_to_hls(*self.rgb_float)
-        return h, s, l
+        return round(h, 14), round(s, 14), round(l, 14)
 
     def lighter(self, ratio: float = 0.5) -> Color:
         h, s, l = self.hsl
@@ -191,14 +195,14 @@ class Color:
         :param threshold: 0..1 float. lightness value below the threshold will result in white, any above will result in black
         :return: font_color in css hex string format
         """
-        h, s, l = self.hsl
+        h, s, l = self.hsl  # pylint: disable=unused-variable
         return WHITE_BRIGHT if l < threshold else BLACK_BRIGHT
 
     def font_border_colors(
         self,
         font_threshold: float = 0.5,
         border_threshold: float = 0.9,
-    ) -> tuple[Color, Color]:
+    ) -> tp.Tuple[Color, Color]:
         """
         determine the font color to be either black or white depending on the background color
         https://css-tricks.com/switch-font-color-for-different-backgrounds-with-css/
@@ -208,11 +212,30 @@ class Color:
         :param border_threshold: 0..1 float. lightness value below the threshold will result the border-color as same, any above 30% darker shade of the same color
         :return: font_color, border_color in css hex string format #4bb9ac
         """
-        # rgb = to_rgb_float(to_rgb_int(color))
-        # h, l, s = colorsys.rgb_to_hls(*rgb)
         h, s, l = self.hsl
         border_color = self if l < border_threshold else Color.from_hsl((h, s, l * 0.7))
         return self.font_color(font_threshold), border_color
+
+
+class Gradient:
+    def __init__(self, colors: tp.List[Color]) -> None:
+        self.colors = colors
+
+    def __call__(self, i: float) -> Color:
+        if not 0 <= i <= 1:
+            raise ValueError('i must be in 0..1 range')
+        j = minmax_scaler(i, 0, 1, 0, len(self.colors) - 1)
+        ja = int(j)
+        jb = min(ja + 1, len(self.colors) - 1)
+        k, _ = math.modf(j)
+        kb = minmax_scaler(k, 0, 1, 0, 0xFF)
+        rgb_a = self.colors[ja].rgb_int
+        rgb_b = self.colors[jb].rgb_int
+        rgb = tuple(
+            int(minmax_scaler(kb, 0, 0xFF, channel_a, channel_b))
+            for channel_a, channel_b in zip(rgb_a, rgb_b)
+        )
+        return Color.from_rgb_int(rgb)  # type: ignore[arg-type]
 
 
 WHITE_BRIGHT = Color.from_hex(0xFFFFFF)
