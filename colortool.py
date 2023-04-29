@@ -177,7 +177,7 @@ class Color:
     @functools.cached_property
     def hsl(self) -> Float3:
         h, l, s = colorsys.rgb_to_hls(*self.rgb_float)
-        return h, s, l
+        return round(h, 14), round(s, 14), round(l, 14)
 
     def lighter(self, ratio: float = 0.5) -> Color:
         h, s, l = self.hsl
