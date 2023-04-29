@@ -9,7 +9,7 @@ import typing as tp
 
 from dsplib.scale import minmax_scaler
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 Float3 = tp.Tuple[float, float, float]
 Float4 = tp.Tuple[float, float, float, float]
