@@ -1,5 +1,8 @@
 name: ci
 
+permissions:
+  contents: write  # necessary to fix https://github.com/softprops/action-gh-release/issues/236#issuecomment-1150530128
+
 on:
   push:
     branches:
