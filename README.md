@@ -52,7 +52,7 @@ Color(0x00FF00, alpha=0.5)
 ```python
 ### convert RGBA color on RGB background to RGB color
 >>> Color.from_background_and_color_alpha(
-...     background=Color.from_hex(0x00FF00),
+...     background=Color(0x00FF00),
 ...     color=Color(0x000000,alpha=0.5),
 ... )
 Color(0x007F00)
@@ -69,8 +69,8 @@ Color(0x7FFF7F)
 ```
 ###  [determine the font color to be either black or white depending on the background color](https://css-tricks.com/switch-font-color-for-different-backgrounds-with-css/)
 ```python
->>> white = Color.from_hex(0xFFFFFF)
->>> black = Color.from_hex(0x000000)
+>>> white = Color(0xFFFFFF)
+>>> black = Color(0x000000)
 >>> white.font_color()
 Color(0x000000)
 >>> black.font_color()
