@@ -96,13 +96,19 @@ ignore = [
     "ANN", # type annotations
     "D", #docstrings
     "Q", # quotes
+    "PLR2004",
     "ARG005", # Unused lambda argument
     "PTH123", # `open()` should be replaced by `Path.open()`
+    "TRY003",
+    "EM101",
+    "E741",
+    "A003",
+    "UP006",
+    "PT001",
 ]
 
 [tool.ruff.per-file-ignores]
-"examples/*" = ["INP001"]
-"tests/*" = ["S101"]
+"tests/*" = ["S101", "PT011", "B018"]
 
 [tool.ruff.isort]
 force-single-line = true
@@ -117,6 +123,7 @@ load-plugins=[
 [tool.pylint.messages-control]
 disable = [
     "invalid-name",
+    "import-error",
     "missing-function-docstring",
     "missing-class-docstring",
     "missing-module-docstring",
@@ -128,10 +135,14 @@ disable = [
     "unused-wildcard-import",
     "keyword-arg-before-vararg",
     "too-few-public-methods",
+    "too-many-public-methods",
+    "too-many-arguments",
+    "redefined-builtin",
+    "pointless-statement",
 ]
 
 [tool.pylint-per-file-ignores]
-"/tests/" = "import-error"
+"/tests/" = "import-error,redefined-outer-name"
 
 # ==============================================================================
 
@@ -139,5 +150,13 @@ disable = [
 ignore="E501,E701"
 recursive = true
 aggressive = 3
+
+# ==============================================================================
+
+[tool.flake8]
+ignore = [
+    'E501',
+    'E741',
+]
 
 # ==============================================================================
