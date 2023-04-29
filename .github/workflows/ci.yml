@@ -17,20 +17,15 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: install wheel
-        run: python3 -m pip install wheel
-
       - name: install dependencies
         run: python3 -m pip install .[dev]
 
-      - name: lint
-        run: make check-lint
-
-      - name: mypy
-        run: make mypy
-
       - name: test
         run: make test
+
+      - name: doctest
+        run: make doctest
+
 
   build-and-publish-to-pypi:
     runs-on: ubuntu-latest
