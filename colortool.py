@@ -3,7 +3,12 @@ from __future__ import annotations
 import colorsys
 import functools
 import random
+import math
 import string
+import typing as tp
+
+from dsplib.scale import minmax_scaler
+
 
 __version__ = '0.3.0'
 
@@ -208,11 +213,32 @@ class Color:
         :param border_threshold: 0..1 float. lightness value below the threshold will result the border-color as same, any above 30% darker shade of the same color
         :return: font_color, border_color in css hex string format #4bb9ac
         """
-        # rgb = to_rgb_float(to_rgb_int(color))
-        # h, l, s = colorsys.rgb_to_hls(*rgb)
         h, s, l = self.hsl
         border_color = self if l < border_threshold else Color.from_hsl((h, s, l * 0.7))
         return self.font_color(font_threshold), border_color
+
+
+
+class Gradient:
+    def __init__(self, colors: tp.List[Color]) -> None:
+        self.colors = colors
+
+    def __call__(self, i: float) -> Color:
+        if not 0 <= i <= 1:
+            raise ValueError('i must be in 0..1 range')
+        j = minmax_scaler(i, 0, 1, 0, len(self.colors))
+        ja = math.floor(j)
+        jb = math.ceil(j)
+        k = j % ja
+        kb = minmax_scaler(k, 0, 1, 0, 0xFF)
+        a = self.colors[ja]
+        b = self.colors[jb]
+        rgb_a = list(a.to_bytes(length=3, byteorder='big'))
+        rgb_b = list(b.to_bytes(length=3, byteorder='big'))
+        rgb = []
+        for channel_a, channel_b in zip(rgb_a, rgb_b):
+            rgb.append(int(minmax_scaler(kb, 0, 0xFF, channel_a, channel_b)))
+        return Color.from_rgb_int(rgb)
 
 
 WHITE_BRIGHT = Color.from_hex(0xFFFFFF)
