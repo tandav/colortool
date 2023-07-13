@@ -140,3 +140,11 @@ def test_alpha_raises():
         c.rgba_int_float
     with pytest.raises(ValueError):
         c.css_rgba
+
+
+def test_setter_validation():
+    c = Color(0x00FF00)
+    with pytest.raises(ValueError):
+        c.color = -1
+    with pytest.raises(ValueError):
+        c.alpha = -0.1

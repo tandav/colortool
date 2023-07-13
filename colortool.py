@@ -29,12 +29,36 @@ class Color:
     """
 
     def __init__(self, color: int, alpha: float | None = None):
-        if not 0 <= color <= 0xFFFFFF:
-            raise ValueError('color must be in range [0, 0xFFFFFF]')
-        if alpha is not None and not 0 <= alpha <= 1:
-            raise ValueError('alpha must be in range [0, 1]')
         self.color = color
         self.alpha = alpha
+
+    @property
+    def color(self) -> int:
+        return self._color
+
+    @color.setter
+    def color(self, color: int) -> None:
+        if not 0 <= color <= 0xFFFFFF:
+            raise ValueError('color must be in range [0, 0xFFFFFF]')
+        self._color = color
+
+    @color.getter
+    def color(self) -> int:
+        return self._color
+
+    @property
+    def alpha(self) -> float | None:
+        return self._alpha
+
+    @alpha.setter
+    def alpha(self, alpha: float | None) -> None:
+        if alpha is not None and not 0 <= alpha <= 1:
+            raise ValueError('alpha must be in range [0, 1]')
+        self._alpha = alpha
+
+    @alpha.getter
+    def alpha(self) -> float | None:
+        return self._alpha
 
     def __repr__(self) -> str:
         if self.alpha is None:
