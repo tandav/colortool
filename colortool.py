@@ -18,10 +18,6 @@ Int4 = tp.Tuple[int, int, int, int]
 Int3Float = tp.Tuple[int, int, int, float]
 
 
-def is_css_hex_color(v: str) -> bool:
-    return len(v) == 7 and v.startswith('#') and set(v[1:]) <= set(string.hexdigits)
-
-
 class Color:
     """
     supported formats:
@@ -83,6 +79,8 @@ class Color:
 
     @classmethod
     def from_css_hex(cls, color: str) -> Color:
+        if not (len(color) == 7 and color.startswith('#') and set(color[1:]) <= set(string.hexdigits)):
+            raise ValueError('color must be in #4bb9ac format')
         return cls(int(color[1:], base=16))
 
     @classmethod

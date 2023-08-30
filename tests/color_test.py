@@ -2,7 +2,6 @@ import itertools
 
 import pytest
 
-import colortool
 from colortool import Color
 
 WHITE = Color(0xFFFFFF)
@@ -86,7 +85,7 @@ def test_darker(color, ratio, expected):
 
 
 @pytest.mark.parametrize(
-    ('string', 'expected'), [
+    ('string', 'is_valid'), [
         ('#FACADE', True),
         ('#000000', True),
         ('#00000', False),
@@ -94,8 +93,12 @@ def test_darker(color, ratio, expected):
         ('#RACADE', False),
     ],
 )
-def test_is_css_hex_color(string, expected):
-    assert colortool.is_css_hex_color(string) == expected
+def test_from_css_hex_validation(string, is_valid):
+    if is_valid:
+        Color.from_css_hex(string)
+        return
+    with pytest.raises(ValueError):
+        Color.from_css_hex(string)
 
 
 def test_hashable():
