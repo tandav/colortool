@@ -220,7 +220,7 @@ class Color:
         :return: font_color in css hex string format
         """
         h, s, l = self.hsl  # pylint: disable=unused-variable
-        return WHITE_BRIGHT if l < threshold else BLACK_BRIGHT
+        return Color(0xFFFFFF) if l < threshold else Color(0x000000)
 
     def font_border_colors(
         self,
@@ -260,16 +260,3 @@ class Gradient:
             for channel_a, channel_b in zip(rgb_a, rgb_b)
         )
         return Color.from_rgb_int(rgb)  # type: ignore[arg-type]
-
-
-WHITE_BRIGHT = Color.from_hex(0xFFFFFF)
-BLACK_BRIGHT = Color.from_hex(0x000000)
-MAGENTA = Color.from_hex(0x4457e5)
-RED = Color.from_hex(0xFF0000)
-GREEN = Color.from_hex(0x00FF00)
-BLUE = Color.from_hex(0x4f88ea)
-RED_PALE = Color.from_hex(0xe2c5c5)
-GREEN_PALE = Color.from_hex(0x8ccc96)
-WHITE_PALE = Color.from_hex(0xAAAAAA)
-BLACK_PALE = Color.from_hex(0x505050)
-YELLOW = Color.from_hex(0xE2ED1A)

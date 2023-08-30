@@ -5,6 +5,10 @@ import pytest
 import colortool
 from colortool import Color
 
+WHITE = Color(0xFFFFFF)
+BLACK = Color(0x000000)
+TEST_COLOR = Color(0xFA972E)
+
 
 @pytest.mark.parametrize('color', [-1, 0xFFFFFF + 1])
 def test_range_validation(color):
@@ -44,30 +48,27 @@ def test_conversions(hex, css_hex, rgb_int, css_rgb, rgb_float, hsl):  # noqa: A
 )
 def test_from_background_and_color_alpha(background, color, alpha, expected):
     assert Color.from_background_and_color_alpha(
-        Color.from_hex(background),
+        Color(background),
         Color(color, alpha),
-    ) == Color.from_hex(expected)
+    ) == Color(expected)
 
 
 @pytest.mark.parametrize(
     ('color', 'expected'), [
-        (Color.from_hex(0xFA972E), colortool.BLACK_BRIGHT),
-        (Color.from_hex(0xFDE1C3), colortool.BLACK_BRIGHT),
-        (Color.from_hex(0x673603), colortool.WHITE_BRIGHT),
-        (Color.from_hex(0x904C04), colortool.WHITE_BRIGHT),
+        (Color(0xFA972E), BLACK),
+        (Color(0xFDE1C3), BLACK),
+        (Color(0x673603), WHITE),
+        (Color(0x904C04), WHITE),
     ],
 )
 def test_font_color(color, expected):
     assert color.font_color() == expected
 
 
-TEST_COLOR = Color.from_hex(0xFA972E)
-
-
 @pytest.mark.parametrize(
     ('color', 'ratio', 'expected'), [
-        (TEST_COLOR, 1, colortool.WHITE_BRIGHT),
-        (TEST_COLOR, 0.5, Color.from_hex(0xFCCB96)),
+        (TEST_COLOR, 1, WHITE),
+        (TEST_COLOR, 0.5, Color(0xFCCB96)),
     ],
 )
 def test_lighter(color, ratio, expected):
@@ -76,8 +77,8 @@ def test_lighter(color, ratio, expected):
 
 @pytest.mark.parametrize(
     ('color', 'ratio', 'expected'), [
-        (TEST_COLOR, 0, colortool.BLACK_BRIGHT),
-        (TEST_COLOR, 0.5, Color.from_hex(0x904C03)),
+        (TEST_COLOR, 0, BLACK),
+        (TEST_COLOR, 0.5, Color(0x904C03)),
     ],
 )
 def test_darker(color, ratio, expected):
@@ -98,8 +99,8 @@ def test_is_css_hex_color(string, expected):
 
 
 def test_hashable():
-    a = Color.from_hex(0x000000)
-    b = Color.from_hex(0x000000)
+    a = Color(0x000000)
+    b = Color(0x000000)
     assert hash(a) == hash(b)
     assert {a, b} == {a}
 
