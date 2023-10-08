@@ -56,6 +56,9 @@ class Color:
     def alpha(self) -> float | None:
         return self._alpha
 
+    def __str__(self) -> str:
+        return f'0x{self.color:06X}'
+
     def __repr__(self) -> str:
         if self.alpha is None:
             return f'Color(0x{self.color:06X})'
@@ -237,6 +240,23 @@ class Color:
         h, s, l = self.hsl
         border_color = self if l < border_threshold else Color.from_hsl((h, s, l * 0.7))
         return self.font_color(font_threshold), border_color
+
+    def _repr_svg_(self) -> str:
+        font_color = self.font_color()
+        return f'''
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="30">
+            <rect width="100" height="30" fill="{self.css_hex}"/>
+            <text
+                x=50
+                y=15
+                font-size=14
+                dominant-baseline="middle"
+                text-anchor="middle"
+                font-family="monospace"
+                fill={font_color.css_hex}
+            >{font_color}</text>'
+        </svg>
+        '''
 
 
 class Gradient:
