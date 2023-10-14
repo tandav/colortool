@@ -2,12 +2,9 @@ from __future__ import annotations
 
 import colorsys
 import functools
-import math
 import random
 import string
 import typing as tp
-
-from dsplib.scale import minmax_scaler
 
 __version__ = '0.5.1'
 
@@ -257,24 +254,3 @@ class Color:
             >{font_color}</text>'
         </svg>
         '''
-
-
-class Gradient:
-    def __init__(self, colors: tp.List[Color]) -> None:
-        self.colors = colors
-
-    def __call__(self, i: float) -> Color:
-        if not 0 <= i <= 1:
-            raise ValueError('i must be in 0..1 range')
-        j = minmax_scaler(i, 0, 1, 0, len(self.colors) - 1)
-        ja = int(j)
-        jb = min(ja + 1, len(self.colors) - 1)
-        k, _ = math.modf(j)
-        kb = minmax_scaler(k, 0, 1, 0, 0xFF)
-        rgb_a = self.colors[ja].rgb_int
-        rgb_b = self.colors[jb].rgb_int
-        rgb = tuple(
-            int(minmax_scaler(kb, 0, 0xFF, channel_a, channel_b))
-            for channel_a, channel_b in zip(rgb_a, rgb_b)
-        )
-        return Color.from_rgb_int(rgb)  # type: ignore[arg-type]

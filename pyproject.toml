@@ -7,9 +7,7 @@ authors = [
 description = "set of tools to work with different color formats"
 readme = "README.md"
 requires-python = ">=3.8"
-dependencies = [
-    "dsplib>=0.8.1",
-]
+dependencies = []
 
 [project.optional-dependencies]
 dev = [
