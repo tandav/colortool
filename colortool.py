@@ -251,6 +251,6 @@ class Color:
                 text-anchor="middle"
                 font-family="monospace"
                 fill={font_color.css_hex}
-            >{font_color}</text>'
+            >{self}</text>'
         </svg>
         '''
