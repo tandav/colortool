@@ -6,7 +6,7 @@ import random
 import string
 import typing as tp
 
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 Float3 = tp.Tuple[float, float, float]
 Float4 = tp.Tuple[float, float, float, float]
