@@ -19,8 +19,8 @@ dev = [
 [project.urls]
 source = "https://github.com/tandav/colortool"
 # docs = "https://tandav.github.io/colortool"
-issues = "https://tandav.github.io/colortool/issues"
-"release notes" = "https://tandav.github.io/colortool/releases"
+issues = "https://gitlab.tandav.me/tandav/notes/-/issues?label_name%5B%5D=colortool"
+"release notes" = "https://github.com/tandav/colortool/releases"
 
 # ==============================================================================
 
