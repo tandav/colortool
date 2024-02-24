@@ -1,5 +1,5 @@
 .PHONY: test
-test:
+test: doctest
 	pytest
 
 .PHONY: bumpver
