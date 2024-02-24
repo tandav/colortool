@@ -29,7 +29,7 @@ repos:
       - id: add-trailing-comma
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.0
+    rev: v3.15.1
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
@@ -40,29 +40,29 @@ repos:
       - id: autopep8
 
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.2.1
+    rev: v2.3.0
     hooks:
       - id: autoflake
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.292
+    rev: v0.2.2
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
 
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.0.1
+    rev: v3.0.4
     hooks:
       - id: pylint
         additional_dependencies: ["pylint-per-file-ignores"]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.6.0
+    rev: v1.8.0
     hooks:
     - id: mypy
 
   - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
+    rev: 7.0.0
     hooks:
     - id: flake8
       additional_dependencies: [Flake8-pyproject]
