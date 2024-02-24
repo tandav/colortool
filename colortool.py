@@ -16,11 +16,6 @@ Int3Float = tp.Tuple[int, int, int, float]
 
 
 class Color:
-    """
-    supported formats:
-    hex, css_hex, rgb_int, rgb_float, hls
-    """
-
     def __init__(self, color: int, alpha: float | None = None):
         self.color = color
         self.alpha = alpha
@@ -54,7 +49,9 @@ class Color:
         return self._alpha
 
     def __str__(self) -> str:
-        return f'0x{self.color:06X}'
+        if self.alpha is None:
+            return f'0x{self.color:06X}'
+        return f'0x{self.color:06X}{int(self.alpha * 255):02X}'
 
     def __repr__(self) -> str:
         if self.alpha is None:
@@ -138,8 +135,8 @@ class Color:
         if background.alpha is not None:
             raise ValueError('background color must not have alpha')
 
-        br, bg, bb = background.rgb_float
-        r, g, b = color.rgb_float
+        br, bg, bb = background._rgb_float
+        r, g, b = color._rgb_float
 
         return cls.from_rgb_float((
             (1 - color.alpha) * br + color.alpha * r,
@@ -152,53 +149,83 @@ class Color:
         return self.color
 
     @functools.cached_property
-    def css_hex(self) -> str:
+    def _css_hex(self) -> str:
         return f'#{self.color:06X}'
 
     @functools.cached_property
-    def rgb_int(self) -> Int3:
+    def _css_hex_alpha(self) -> str:
+        if self.alpha is None:
+            raise ValueError('alpha is None')
+        return f'#{self.color:06X}{int(self.alpha * 255):02X}'
+
+    @functools.cached_property
+    def css_hex(self) -> str:
+        if self.alpha is None:
+            return self._css_hex
+        return self._css_hex_alpha
+
+    @functools.cached_property
+    def _rgb_int(self) -> Int3:
         r, g, b = self.color.to_bytes(3, byteorder='big')
         return r, g, b
 
     @functools.cached_property
-    def rgba_int(self) -> Int4:
+    def _rgba_int(self) -> Int4:
         if self.alpha is None:
             raise ValueError('alpha is None')
         r, g, b = self.color.to_bytes(3, byteorder='big')
         return r, g, b, int(self.alpha * 255)
 
     @functools.cached_property
-    def rgb_float(self) -> Float3:
-        r, g, b = self.rgb_int
+    def rgb_int(self) -> Int3 | Int4:
+        if self.alpha is None:
+            return self._rgb_int
+        return self._rgba_int
+
+    @functools.cached_property
+    def _rgb_float(self) -> Float3:
+        r, g, b = self._rgb_int
         return r / 255, g / 255, b / 255
 
     @functools.cached_property
-    def rgba_float(self) -> Float4:
+    def _rgba_float(self) -> Float4:
         if self.alpha is None:
             raise ValueError('alpha is None')
-        r, g, b = self.rgb_int
+        r, g, b = self._rgb_int
         return r / 255, g / 255, b / 255, self.alpha
 
     @functools.cached_property
-    def rgba_int_float(self) -> Int3Float:
+    def rgb_float(self) -> Float3 | Float4:
+        if self.alpha is None:
+            return self._rgb_float
+        return self._rgba_float
+
+    @functools.cached_property
+    def _rgba_int_float(self) -> Int3Float:
         if self.alpha is None:
             raise ValueError('alpha is None')
-        r, g, b = self.rgb_int
+        r, g, b = self._rgb_int
         return r, g, b, self.alpha
 
     @functools.cached_property
-    def css_rgb(self) -> str:
-        return f'rgb{self.rgb_int}'
+    def _css_rgb(self) -> str:
+        return f'rgb{self._rgb_int}'
 
     @functools.cached_property
-    def css_rgba(self) -> str:
+    def _css_rgba(self) -> str:
         if self.alpha is None:
             raise ValueError('alpha is None')
-        return f'rgba{self.rgba_int_float}'
+        return f'rgba{self._rgba_int_float}'
+
+    @functools.cached_property
+    def css_rgb(self) -> str:
+        if self.alpha is None:
+            return self._css_rgb
+        return self._css_rgba
 
     @functools.cached_property
     def hsl(self) -> Float3:
-        h, l, s = colorsys.rgb_to_hls(*self.rgb_float)
+        h, l, s = colorsys.rgb_to_hls(*self._rgb_float)
         return round(h, 14), round(s, 14), round(l, 14)
 
     def lighter(self, ratio: float = 0.5) -> Color:
@@ -250,7 +277,7 @@ class Color:
                 dominant-baseline="middle"
                 text-anchor="middle"
                 font-family="monospace"
-                fill={font_color.css_hex}
+                fill="{font_color.css_hex}"
             >{self}</text>'
         </svg>
         '''

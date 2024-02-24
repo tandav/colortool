@@ -44,7 +44,7 @@ Color(0x00FF00)
 >>> Color.from_rgba_int_float((0, 255, 0, 0.5))
 Color(0x00FF00, alpha=0.5)
 
->>> Color.from_rgba_int_float((0, 255, 0, 0.5)).css_rgba
+>>> Color.from_rgba_int_float((0, 255, 0, 0.5)).css_rgb
 'rgba(0, 255, 0, 0.5)'
 
 ```
