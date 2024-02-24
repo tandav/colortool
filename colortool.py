@@ -54,7 +54,9 @@ class Color:
         return self._alpha
 
     def __str__(self) -> str:
-        return f'0x{self.color:06X}'
+        if self.alpha is None:
+            return f'0x{self.color:06X}'
+        return f'0x{self.color:06X}{int(self.alpha * 255):02X}'
 
     def __repr__(self) -> str:
         if self.alpha is None:
@@ -156,6 +158,12 @@ class Color:
         return f'#{self.color:06X}'
 
     @functools.cached_property
+    def css_hex_alpha(self) -> str:
+        if self.alpha is None:
+            raise ValueError('alpha is None')
+        return f'#{self.color:06X}{int(self.alpha * 255):02X}'
+
+    @functools.cached_property
     def rgb_int(self) -> Int3:
         r, g, b = self.color.to_bytes(3, byteorder='big')
         return r, g, b
@@ -195,6 +203,30 @@ class Color:
         if self.alpha is None:
             raise ValueError('alpha is None')
         return f'rgba{self.rgba_int_float}'
+
+    @functools.cached_property
+    def auto_css_rgb(self) -> str:
+        if self.alpha is None:
+            return self.css_rgb
+        return self.css_rgba
+
+    @functools.cached_property
+    def auto_css_hex(self) -> str:
+        if self.alpha is None:
+            return self.css_hex
+        return self.css_hex_alpha
+
+    @functools.cached_property
+    def auto_rgb_float(self) -> Float3 | Float4:
+        if self.alpha is None:
+            return self.rgb_float
+        return self.rgba_float
+
+    @functools.cached_property
+    def auto_rgb_int(self) -> Int3 | Int4:
+        if self.alpha is None:
+            return self.rgb_int
+        return self.rgba_int
 
     @functools.cached_property
     def hsl(self) -> Float3:
@@ -242,7 +274,7 @@ class Color:
         font_color = self.font_color()
         return f'''
         <svg xmlns="http://www.w3.org/2000/svg" width="100" height="30">
-            <rect width="100" height="30" fill="{self.css_hex}"/>
+            <rect width="100" height="30" fill="{self.auto_css_hex}"/>
             <text
                 x=50
                 y=15
@@ -250,7 +282,7 @@ class Color:
                 dominant-baseline="middle"
                 text-anchor="middle"
                 font-family="monospace"
-                fill={font_color.css_hex}
+                fill="{font_color.css_hex}"
             >{self}</text>'
         </svg>
         '''

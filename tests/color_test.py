@@ -124,6 +124,7 @@ def test_alpha_to():
     assert c.rgba_float == (0.0, 1.0, 0.0, 0.5)
     assert c.rgba_int_float == (0, 255, 0, 0.5)
     assert c.css_rgba == 'rgba(0, 255, 0, 0.5)'
+    assert c.css_hex_alpha == '#00FF007F'
 
 
 def test_alpha_raises():
@@ -152,3 +153,29 @@ def test_setter_validation():
         c.color = -1
     with pytest.raises(ValueError):
         c.alpha = -0.1
+
+
+def test_auto():
+    c = Color(0x00FF00)
+    assert str(c) == '0x00FF00'
+    assert c.auto_css_rgb == 'rgb(0, 255, 0)'
+    assert c.auto_css_hex == '#00FF00'
+    assert c.auto_rgb_float == (0.0, 1.0, 0.0)
+    assert c.auto_rgb_int == (0, 255, 0)
+
+    c = Color(0x00FF00, alpha=0.9)
+    assert str(c) == '0x00FF00E5'
+    assert c.auto_css_rgb == 'rgba(0, 255, 0, 0.9)'
+    assert c.auto_css_hex == '#00FF00E5'
+    assert c.auto_rgb_float == (0.0, 1.0, 0.0, 0.9)
+    assert c.auto_rgb_int == (0, 255, 0, 229)
+
+
+@pytest.mark.parametrize(
+    'color', [
+        Color(0xFA972E),
+        Color(0xFA972E, alpha=0.9),
+    ],
+)
+def test_repr_svg(color):
+    color._repr_svg_()  # noqa: SLF001 # pylint: disable=W0212
